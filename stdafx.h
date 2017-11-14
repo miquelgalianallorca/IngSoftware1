@@ -10,6 +10,11 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#include <conio.h>
+#include <windows.h>
+#include <time.h>
+#include <vector>
+
 
 
 // TODO: reference additional headers your program requires here
