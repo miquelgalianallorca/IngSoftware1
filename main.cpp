@@ -28,15 +28,23 @@ struct Mushroom {
 	int  mushPos = -1;
 };
 
-// Points
-const int startingLives = 3;
-const int pointsEnemyKill = 5;
-const int pointsMushroom = 10;
+// Game globals
+const unsigned int startingLives   = 3;
+const unsigned int pointsEnemyKill = 5;
+const unsigned int pointsMushroom  = 10;
+const unsigned int lineSize        = 41;
 
 // Remove _ blinking in console
 void ShowConsoleCursor(bool showFlag);
 
+unsigned int Distance(int posA, int posB) {
+	return abs(posA - posB);
+}
 
+bool OutOfBounds(int pos) {
+	if (pos < 0 || pos >= lineSize) return true;
+	else return false;
+}
 
 int main()
 {
@@ -44,28 +52,27 @@ int main()
 	ShowConsoleCursor(false);
 	printf("\n\n\n\n");
 
-	//Game vars
+	// Game vars
 	bool seguir = true;
-	unsigned int  gPoints = 0;
-	unsigned int  gLives = startingLives;
+	unsigned int gamePoints = 0;
+	unsigned int gameLives  = startingLives;
 
-	//Char vars
+	// Char vars
 	unsigned int charPos = 20;
-	const unsigned int lineSize = 41;
 
-	//Entities
+	// Entities
 	vector<Bullet>   bullets;
 	vector<Enemy>    enemies;
 	vector<Mushroom> mushrooms;
 
 	const unsigned int enemySpawnTime    = 10;
 	const unsigned int mushroomSpawnTime = 20;
-	unsigned int enemyTimer    = 0;
-	unsigned int mushroomTimer = 0;
-
+	      unsigned int enemyTimer        = 0;
+	      unsigned int mushroomTimer     = 0;
+	
 	while (seguir) {
 		//======================================== UPDATEs		
-		//Input
+		// Input
 		if (_kbhit()) {
 			Bullet b;
 			char input = _getch();
@@ -93,137 +100,134 @@ int main()
 			}
 		}
 
-		//Bullet logic
-		for (auto it = bullets.begin(); it != bullets.end(); it++) {
-			if      (it->bulletType == Direction::Left)  it->bulletPos--;
-			else if (it->bulletType == Direction::Right) it->bulletPos++;
-		}
-		//if (bulletActive) {
-		//	if      (bulletType == Direction::Left)  bulletPos--;
-		//	else if (bulletType == Direction::Right) bulletPos++;
-		//	//Bullet collision with enemy
-		//	if (enemyActive && enemyPos == bulletPos) {
-		//		enemyActive  = false;
-		//		bulletActive = false;
-		//		gPoints     += pointsEnemyKill;
-		//	}
-		//	//Bullet collision with mushroom
-		//	if (mushActive && mushPos == bulletPos) {
-		//		mushActive   = false;
-		//		bulletActive = false;
-		//	}
-		//}
-		//if (bulletPos < 0 || bulletPos >= lineSize) bulletActive = false;
+		// Bullet logic
+		for (auto itB = bullets.begin(); itB != bullets.end();) {
+			
+			bool eraseBullet = false;
 
-		//Enemy logic
+			// Bullet movement
+			if      (itB->bulletType == Direction::Left)  itB->bulletPos--;
+			else if (itB->bulletType == Direction::Right) itB->bulletPos++;
+			
+			// Destroy bullet out of bounds
+			if (OutOfBounds(itB->bulletPos)) eraseBullet = true;
+			else {
+				// Collision bullet/enemy
+				for (auto itE = enemies.begin(); itE != enemies.end();) {
+					bool eraseEnemy = false;
+					if (Distance(itB->bulletPos, itE->enemyPos) <= 1) {
+						eraseEnemy  = true;
+						eraseBullet = true;
+						gamePoints += pointsEnemyKill;
+					}
+					if (eraseEnemy) itE = enemies.erase(itE);
+					else            itE++;
+				}
+				// Collision bullet/mushroom
+				for (auto itM = mushrooms.begin(); itM != mushrooms.end();) {
+					bool eraseMushroom = false;
+					if (Distance(itB->bulletPos, itM->mushPos) < 1) {
+						eraseBullet   = true;
+						eraseMushroom = true;
+					}
+					if (eraseMushroom) itM = mushrooms.erase(itM);
+					else               itM++;
+				}
+			}
+			
+			if (eraseBullet) itB = bullets.erase(itB);
+			else             itB++;
+		}
+
+		// Enemy logic
 		if (enemyTimer > enemySpawnTime) {
 			//Spawn enemy
-			//TO DO
+			Enemy e;
+			if (rand() % 2 == 0) {
+				e.enemyType = Direction::Left;
+				e.enemyPos  = 0;
+			}
+			else {
+				e.enemyType = Direction::Right;
+				e.enemyPos  = lineSize - 1;
+			}
+			enemies.push_back(e);
 			enemyTimer = 0;
 		}
 		else enemyTimer++;
-		for (auto it = enemies.begin(); it != enemies.end(); it++){
+
+		for (auto it = enemies.begin(); it != enemies.end();){
+			bool remove = false;
 			//Move enemy
 			if      (it->enemyType == Direction::Left)  it->enemyPos++;
 			else if (it->enemyType == Direction::Right) it->enemyPos--;
-
 			//Destroy enemy out of bounds
-			if (it->enemyPos < 0 || it->enemyPos >= lineSize)
-				enemies.erase(it);
+			if (OutOfBounds(it->enemyPos)) remove = true;
+			else {
+				//Collision enemy/player
+				if (Distance(charPos, it->enemyPos) <= 1) {
+					remove = true;
+					if (gameLives > 0) gameLives--;
+					else {
+						gameLives  = startingLives;
+						gamePoints = 0;
+					}
+				}
+			}
+			if (remove) it = enemies.erase(it);
+			else        it++;
 		}
-		//if (enemyActive) {
-		//	deadTime = 0;
-		//	if      (enemyType == Direction::Left)  enemyPos++;
-		//	else if (enemyType == Direction::Right) enemyPos--;
-		//	//Enemy collision with bullet
-		//	if (bulletActive && enemyPos == bulletPos) {
-		//		//Kill enemy
-		//		enemyActive  = false;
-		//		bulletActive = false;
-		//		gPoints     += pointsEnemyKill;
-		//	}
-		//	//Enemy collision with player
-		//	if (enemyPos == charPos) {
-		//		//If dead reset game
-		//		if (gLives == 0) {
-		//			gLives  = startingLives;
-		//			gPoints = 0;
-		//		}
-		//		else gLives--;
-		//	}
-		//}
-		////Enemy not active
-		//else {
-		//	deadTime++;
-		//	if (deadTime > spawnTime) {
-		//		//Spawn enemy
-		//		enemyActive = true;
-		//		if (rand() % 2 == 0) {
-		//			enemyType = Direction::Left;
-		//			enemyPos  = 0;
-		//		}
-		//		else {
-		//			enemyType = Direction::Right;
-		//			enemyPos  = lineSize - 1;
-		//		} 
-		//		spawnTime = rand() % 4 + 1;
-		//	}
-		//}
 
-		//Mushroom logic
-		/*for (auto it = mushrooms.begin(); it != mushrooms.end(); it++) {
-
-		}*/
-		//if (mushActive) {
-		//	mushDeadTime = 0;
-		//	//Character collision with mushroom
-		//	if (mushPos == charPos) {
-		//		mushActive = false;
-		//		gPoints   += pointsMushroom;
-		//	}
-		//}
-		//else {
-		//	mushDeadTime++;
-		//	if (mushDeadTime > mushSpawnTime) {
-		//		//Spawn mushroom
-		//		mushPos    = rand() % lineSize;
-		//		mushActive = true;
-		//		mushSpawnTime = rand() % 12 + 1;
-		//	}
-		//}
+		// Mushroom logic
+		if (mushroomTimer > mushroomSpawnTime) {
+			//Spawn mushroom
+			Mushroom m;
+			m.mushPos = rand() % lineSize;
+			mushrooms.push_back(m);
+			mushroomTimer = 0;
+		}
+		else mushroomTimer++;
+		for (auto itM = mushrooms.begin(); itM != mushrooms.end();) {
+			bool eraseMushroom = false;
+			//Collision mushroom/player
+			if (Distance(charPos, itM->mushPos) < 1) {
+				eraseMushroom = true;
+				gamePoints += pointsMushroom;
+			}
+			if (eraseMushroom) itM = mushrooms.erase(itM);
+			else               itM++;
+		}
+		
 
 		////======================================== DRAW
-		printf("\r"); //Rewrite line
+		printf("\r");
 		for (int i = 0; i < lineSize; i++) {
 			char *draw = "_";
 			
-			//Draw character
+			// Draw character
 			if (i == charPos) draw = "X";
-			
-			//Draw bullets
+			// Draw bullets
 			for (auto it = bullets.begin(); it != bullets.end(); it++) {
 				if (it->bulletPos == i) {
 					if      (it->bulletType == Direction::Left)  draw = "<";
 					else if (it->bulletType == Direction::Right) draw = ">";
 				}
 			}
-			
-			//Draw enemies
-			for (auto it = enemies.begin(); it != enemies.end(); i++) {
+			// Draw enemies
+			for (auto it = enemies.begin(); it != enemies.end(); it++) {
 				if (it->enemyPos == i) draw = "@";
 			}
-			
-			//Draw mushrooms
-			for (auto it = mushrooms.begin(); it != mushrooms.end(); i++) {
+			// Draw mushrooms
+			for (auto it = mushrooms.begin(); it != mushrooms.end(); it++) {
 				if (it->mushPos == i) draw = "o";
 			}
 			
 			printf(draw);
 		}
-		//printf(" deadTime: %i, spawnTime: %i", deadTime, spawnTime);
-		printf(" LIVES: %i    POINTS: %03i", gLives, gPoints);
+		///printf(" deadTime: %i, spawnTime: %i", deadTime, spawnTime);
+		printf(" LIVES: %i    POINTS: %03i", gameLives, gamePoints);
 
-		Sleep(50);
+		Sleep(60);
 	}
 
     return 0;
