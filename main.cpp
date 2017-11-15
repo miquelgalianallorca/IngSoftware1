@@ -6,14 +6,15 @@
 
 using std::vector;
 
+// ASCII Input
 struct Key {
-	// ASCII
 	enum { Esc = 27, Z = 122, C = 99, H = 104, J = 106 };
 };
 
 // Movement direction (for bullet type and enemy type)
 enum class Direction { Left, Right };
 
+// Entities
 struct Bullet {
 	Direction bulletType   = Direction::Left;
 	int       bulletPos    = -1;
@@ -34,17 +35,10 @@ const unsigned int pointsEnemyKill = 5;
 const unsigned int pointsMushroom  = 10;
 const unsigned int lineSize        = 41;
 
-// Remove _ blinking in console
-void ShowConsoleCursor(bool showFlag);
-
-unsigned int Distance(int posA, int posB) {
-	return abs(posA - posB);
-}
-
-bool OutOfBounds(int pos) {
-	if (pos < 0 || pos >= lineSize) return true;
-	else return false;
-}
+// Utils
+         void ShowConsoleCursor(bool showFlag);
+unsigned int  Distance(int posA, int posB);
+         bool OutOfBounds(int pos);
 
 int main()
 {
@@ -241,4 +235,13 @@ void ShowConsoleCursor(bool showFlag)
 	GetConsoleCursorInfo(out, &cursorInfo);
 	cursorInfo.bVisible = showFlag; // set the cursor visibility
 	SetConsoleCursorInfo(out, &cursorInfo);
+}
+
+unsigned int Distance(int posA, int posB) {
+	return abs(posA - posB);
+}
+
+bool OutOfBounds(int pos) {
+	if (pos < 0 || pos >= lineSize) return true;
+	else return false;
 }
