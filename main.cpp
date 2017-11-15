@@ -3,6 +3,11 @@
 // Ingenieria del Software
 
 #include "stdafx.h"
+#include "Utils.h"
+#include "Bullet.h"
+#include "Enemy.h"
+#include "Mushroom.h"
+#include "MeteoManager.h"
 
 using std::vector;
 
@@ -11,31 +16,13 @@ struct Key {
 	enum { Esc = 27, Z = 122, C = 99, H = 104, J = 106 };
 };
 
-// Movement direction (for bullet type and enemy type)
-enum class Direction { Left, Right };
-
-// Entities
-struct Bullet {
-	Direction bulletType   = Direction::Left;
-	int       bulletPos    = -1;
-};
-
-struct Enemy {
-	int       enemyPos = -1;
-	Direction enemyType = Direction::Left;
-};
-
-struct Mushroom {
-	int  mushPos = -1;
-};
-
 // Game globals
 const unsigned int startingLives   = 3;
 const unsigned int pointsEnemyKill = 5;
 const unsigned int pointsMushroom  = 10;
 const unsigned int lineSize        = 41;
 
-// Utils
+// Tools
          void ShowConsoleCursor(bool showFlag);
 unsigned int  Distance(int posA, int posB);
          bool OutOfBounds(int pos);
@@ -44,6 +31,11 @@ int main()
 {
 	srand(static_cast<unsigned int>(time(NULL)));
 	ShowConsoleCursor(false);
+	printf("\n\n");
+	printf("                       1D SHOOTER - THE GAME\n");
+	printf("                              Z/C - Move    \n");
+	printf("                              H/J - Shoot   \n");
+	printf("                              Esc - Exit    \n");
 	printf("\n\n\n\n");
 
 	// Game vars
@@ -58,6 +50,8 @@ int main()
 	vector<Bullet>   bullets;
 	vector<Enemy>    enemies;
 	vector<Mushroom> mushrooms;
+	MeteoManager     m;
+	m.Init();
 
 	const unsigned int enemySpawnTime    = 10;
 	const unsigned int mushroomSpawnTime = 20;
@@ -81,13 +75,11 @@ int main()
 				if (charPos < lineSize - 1) charPos++;
 				break;
 			case Key::H:
-				b.bulletType = Direction::Left;
-				b.bulletPos  = charPos - 1;
+				b.SetLeftBullet (charPos - 1);
 				bullets.push_back(b);
 				break;
 			case Key::J:
-				b.bulletType = Direction::Right;
-				b.bulletPos  = charPos + 1;
+				b.SetRightBullet(charPos + 1);
 				bullets.push_back(b);
 				break;
 			///default: printf("%i\n", input);
@@ -96,20 +88,15 @@ int main()
 
 		// Bullet logic
 		for (auto itB = bullets.begin(); itB != bullets.end();) {
-			
 			bool eraseBullet = false;
-
-			// Bullet movement
-			if      (itB->bulletType == Direction::Left)  itB->bulletPos--;
-			else if (itB->bulletType == Direction::Right) itB->bulletPos++;
-			
+			itB->Update();
 			// Destroy bullet out of bounds
-			if (OutOfBounds(itB->bulletPos)) eraseBullet = true;
+			if (OutOfBounds(itB->GetPos())) eraseBullet = true;
 			else {
 				// Collision bullet/enemy
 				for (auto itE = enemies.begin(); itE != enemies.end();) {
 					bool eraseEnemy = false;
-					if (Distance(itB->bulletPos, itE->enemyPos) <= 1) {
+					if (Distance(itB->GetPos(), itE->GetPos()) <= 1) {
 						eraseEnemy  = true;
 						eraseBullet = true;
 						gamePoints += pointsEnemyKill;
@@ -120,7 +107,7 @@ int main()
 				// Collision bullet/mushroom
 				for (auto itM = mushrooms.begin(); itM != mushrooms.end();) {
 					bool eraseMushroom = false;
-					if (Distance(itB->bulletPos, itM->mushPos) < 1) {
+					if (Distance(itB->GetPos(), itM->GetPos()) < 1) {
 						eraseBullet   = true;
 						eraseMushroom = true;
 					}
@@ -137,29 +124,19 @@ int main()
 		if (enemyTimer > enemySpawnTime) {
 			//Spawn enemy
 			Enemy e;
-			if (rand() % 2 == 0) {
-				e.enemyType = Direction::Left;
-				e.enemyPos  = 0;
-			}
-			else {
-				e.enemyType = Direction::Right;
-				e.enemyPos  = lineSize - 1;
-			}
+			e.Init(lineSize);
 			enemies.push_back(e);
 			enemyTimer = 0;
 		}
 		else enemyTimer++;
-
 		for (auto it = enemies.begin(); it != enemies.end();){
 			bool remove = false;
-			//Move enemy
-			if      (it->enemyType == Direction::Left)  it->enemyPos++;
-			else if (it->enemyType == Direction::Right) it->enemyPos--;
+			it->Update();
 			//Destroy enemy out of bounds
-			if (OutOfBounds(it->enemyPos)) remove = true;
+			if (OutOfBounds(it->GetPos())) remove = true;
 			else {
 				//Collision enemy/player
-				if (Distance(charPos, it->enemyPos) <= 1) {
+				if (Distance(charPos, it->GetPos()) <= 1) {
 					remove = true;
 					if (gameLives > 0) gameLives--;
 					else {
@@ -176,7 +153,7 @@ int main()
 		if (mushroomTimer > mushroomSpawnTime) {
 			//Spawn mushroom
 			Mushroom m;
-			m.mushPos = rand() % lineSize;
+			m.Init(lineSize);
 			mushrooms.push_back(m);
 			mushroomTimer = 0;
 		}
@@ -184,7 +161,7 @@ int main()
 		for (auto itM = mushrooms.begin(); itM != mushrooms.end();) {
 			bool eraseMushroom = false;
 			//Collision mushroom/player
-			if (Distance(charPos, itM->mushPos) < 1) {
+			if (Distance(charPos, itM->GetPos()) < 1) {
 				eraseMushroom = true;
 				gamePoints += pointsMushroom;
 			}
@@ -192,30 +169,30 @@ int main()
 			else               itM++;
 		}
 		
+		// Weather
+		meteoManager.Update();
 
 		////======================================== DRAW
 		printf("\r");
 		for (int i = 0; i < lineSize; i++) {
+			// TO DO
+			// Weather effects
+			// ...
 			char *draw = "_";
-			
 			// Draw character
 			if (i == charPos) draw = "X";
 			// Draw bullets
 			for (auto it = bullets.begin(); it != bullets.end(); it++) {
-				if (it->bulletPos == i) {
-					if      (it->bulletType == Direction::Left)  draw = "<";
-					else if (it->bulletType == Direction::Right) draw = ">";
-				}
+				if (it->GetPos() == i) draw = it->GetGraphic();
 			}
 			// Draw enemies
 			for (auto it = enemies.begin(); it != enemies.end(); it++) {
-				if (it->enemyPos == i) draw = "@";
+				if (it->GetPos() == i) draw = it->GetGraphic();
 			}
 			// Draw mushrooms
 			for (auto it = mushrooms.begin(); it != mushrooms.end(); it++) {
-				if (it->mushPos == i) draw = "o";
+				if (it->GetPos() == i) draw = it->GetGraphic();
 			}
-			
 			printf(draw);
 		}
 		///printf(" deadTime: %i, spawnTime: %i", deadTime, spawnTime);
