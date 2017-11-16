@@ -7,44 +7,45 @@ MeteoManager::MeteoManager() {
 	graphicFall   = '|';
 	graphicSplash = 'v';
 	graphicEnd    = '.';
-	state         = DropState::Nothing;
 	dropSpawnTime = 0;
 	dropTimer     = 0;
 }
 
 MeteoManager::~MeteoManager() {
-	delete[] groundLine;
-	delete[] fallLine;
-	delete[] splashLine;
-	delete[] endLine;
+	/*delete[] groundLine;
+	delete[] upperLine;*/
 }
 
-void MeteoManager::Init(const unsigned int _lineSize, const unsigned int _dropSpawnTime) {
-	lineSize = _lineSize;
+void MeteoManager::Init(const unsigned int _dropSpawnTime) {
 	dropSpawnTime = _dropSpawnTime;
 	// Initialize lines
-	groundLine = new char[lineSize];
-	fallLine   = new char[lineSize];
-	splashLine = new char[lineSize];
-	endLine    = new char[lineSize];
-	for (int i = 0; i < lineSize; i++) {
+	/*groundLine = new char[lineSize];
+	upperLine  = new char[lineSize];
+	for (unsigned int i = 0; i < lineSize; i++) {
 		groundLine[i] = graphicGround;
-		if (i % 2 == 0) {
-			fallLine[i]   = graphicFall;
-			splashLine[i] = graphicSplash;
-			endLine[i]    = graphicEnd;
-		}
-		else {
-			fallLine[i]   = graphicGround;
-			splashLine[i] = graphicGround;
-			endLine[i]    = graphicGround;
-		}
-	}
+		upperLine[i]  = ' ';
+	}*/
 }
 
 void MeteoManager::Update() {
-	// Iterate through states
-	switch (state) {
+	// Spawn raindrops
+	if (dropTimer > dropSpawnTime) {
+		dropTimer = 0;
+		RainDrop rd(rand() % lineSize, 1);
+		rainDrops.push_back(rd);
+	}
+	else dropTimer++;
+
+	// Change drop graphics on ground
+	for (auto it = rainDrops.begin(); it != rainDrops.end();) {
+		bool deleteDrop = false;
+		
+		if()
+
+		if (deleteDrop) rainDrops.erase(it);
+		else it++;
+	}
+	/*switch (state) {
 		case DropState::Nothing: 
 			if (dropTimer > dropSpawnTime) state = DropState::Fall;
 			else dropTimer++;
@@ -56,31 +57,24 @@ void MeteoManager::Update() {
 			dropTimer = 0;
 			InvertRain();
 			break;
-	}
+	}*/
 }
 
 char MeteoManager::GetGraphicAt(const unsigned int _pos) const {
 	// Error check
 	if (_pos < 0 || _pos >= lineSize) return 'E';
 	// Return
-	switch (state) {
-		case DropState::Nothing: return groundLine[_pos];
-		case DropState::Fall:    return fallLine[_pos];
-		case DropState::Splash:  return splashLine[_pos];
-		case DropState::End:     return endLine[_pos];
-	}
+	//switch (state) {
+	//	case DropState::Nothing: return groundLine[_pos];
+	//	/*case DropState::Fall:    return fallLine[_pos];
+	//	case DropState::Splash:  return splashLine[_pos];
+	//	case DropState::End:     return endLine[_pos];*/
+	//	default:                 return 'E';
+	//}
+	return ' ';
 }
 
-void MeteoManager::InvertRain() {
-	for (int i = 0; i < lineSize; i++) {
-		if (fallLine[i] == graphicFall) 
-			 fallLine[i] = graphicGround;
-		else fallLine[i] = graphicFall;
-		if (splashLine[i] == graphicSplash)
-			 splashLine[i] = graphicGround;
-		else splashLine[i] = graphicSplash;
-		if (endLine[i] == graphicEnd) 
-			 endLine[i] = graphicGround;
-		else endLine[i] = graphicEnd;
-	}
+MeteoManager::RainDrop::RainDrop(unsigned int _posX, unsigned int _posY) {
+	posX = _posX;
+	posY = _posY;
 }
