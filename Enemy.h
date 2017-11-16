@@ -7,11 +7,11 @@ public:
 
 	void Update();
 
-	int    GetPos()     const;
-	char * GetGraphic() const;
+	int  GetPos()     const;
+	char GetGraphic() const;
 
 private:
 	int       pos;
 	Direction dir;
-	char *    graphic;
+	char      graphic;
 };

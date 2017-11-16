@@ -4,7 +4,7 @@
 
 Mushroom::Mushroom() {
 	pos     = -1;
-	graphic = "o";
+	graphic = 'o';
 }
 
 void Mushroom::Init(const unsigned int _lineSize) {
@@ -15,6 +15,6 @@ int Mushroom::GetPos() const {
 	return pos;
 }
 
-char * Mushroom::GetGraphic() const {
+char Mushroom::GetGraphic() const {
 	return graphic;
 }

@@ -5,7 +5,7 @@
 Enemy::Enemy() {
 	pos     = -1;
 	dir     = Direction::Left;
-	graphic = "@";
+	graphic = '@';
 }
 
 void Enemy::Init(const unsigned int _lineSize) {
@@ -29,6 +29,6 @@ int Enemy::GetPos() const {
 	return pos;
 }
 
-char * Enemy::GetGraphic() const {
+char Enemy::GetGraphic() const {
 	return graphic;
 }

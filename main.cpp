@@ -50,8 +50,8 @@ int main()
 	vector<Bullet>   bullets;
 	vector<Enemy>    enemies;
 	vector<Mushroom> mushrooms;
-	MeteoManager     m;
-	m.Init();
+	MeteoManager     meteoManager;
+	meteoManager.Init(lineSize, 10);
 
 	const unsigned int enemySpawnTime    = 10;
 	const unsigned int mushroomSpawnTime = 20;
@@ -175,12 +175,10 @@ int main()
 		////======================================== DRAW
 		printf("\r");
 		for (int i = 0; i < lineSize; i++) {
-			// TO DO
 			// Weather effects
-			// ...
-			char *draw = "_";
+			char draw = meteoManager.GetGraphicAt(i);
 			// Draw character
-			if (i == charPos) draw = "X";
+			if (i == charPos) draw = 'X';
 			// Draw bullets
 			for (auto it = bullets.begin(); it != bullets.end(); it++) {
 				if (it->GetPos() == i) draw = it->GetGraphic();
@@ -193,7 +191,7 @@ int main()
 			for (auto it = mushrooms.begin(); it != mushrooms.end(); it++) {
 				if (it->GetPos() == i) draw = it->GetGraphic();
 			}
-			printf(draw);
+			printf("%c", draw);
 		}
 		///printf(" deadTime: %i, spawnTime: %i", deadTime, spawnTime);
 		printf(" LIVES: %i    POINTS: %03i", gameLives, gamePoints);

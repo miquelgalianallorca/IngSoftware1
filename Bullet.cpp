@@ -5,19 +5,19 @@
 Bullet::Bullet() {
 	pos     = -1;
 	dir     = Direction::Left;
-	graphic = " ";
+	graphic = ' ';
 }
 
 void Bullet::SetLeftBullet(const unsigned int _pos) {
 	pos     = _pos;
 	dir     = Direction::Left;
-	graphic = "<";
+	graphic = '<';
 }
 
 void Bullet::SetRightBullet(const unsigned int _pos) {
 	pos     = _pos;
 	dir     = Direction::Right;
-	graphic = ">";
+	graphic = '>';
 }
 
 void Bullet::Update() {
@@ -30,6 +30,6 @@ int Bullet::GetPos() const {
 	return pos;
 }
 
-char * Bullet::GetGraphic() const {
+char Bullet::GetGraphic() const {
 	return graphic;
 }

@@ -8,11 +8,11 @@ public:
 	void SetRightBullet(const unsigned int _pos);
 	void Update();
 
-	int    GetPos()     const;
-	char * GetGraphic() const;
+	int  GetPos()     const;
+	char GetGraphic() const;
 
 private:
 	Direction dir;
 	int       pos;
-	char *    graphic;
+	char      graphic;
 };
