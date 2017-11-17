@@ -25,7 +25,7 @@ World::~World() {
 void World::Init() {
 	player   = new Player();
 	meteoManager = new MeteoManager();
-	meteoManager->Init(10);
+	meteoManager->Init(5);
 }
 
 void World::Update() {
@@ -123,10 +123,18 @@ void World::AddBullet(Direction _dir) {
 }
 
 void World::Draw() {
-	printf("\r");
+	//Draw sky
+	MoveConsoleCursor(0, 11);
+	for (int i = 0; i < lineSize; i++) {
+		char draw = meteoManager->GetGraphicAt(i, 1);
+		printf("%c", draw);
+	}
+	//Draw ground
+	MoveConsoleCursor(0, 12);
 	for (int i = 0; i < lineSize; i++) {
 		// Weather effects
-		char draw = meteoManager->GetGraphicAt(i);
+		char draw = meteoManager->GetGraphicAt(i, 0);
+		//meteoManager->GetRainLine(printLine);
 		// Draw character
 		if (i == player->GetPos()) draw = player->GetGraphic();
 		// Draw bullets

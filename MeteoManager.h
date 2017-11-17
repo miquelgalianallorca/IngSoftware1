@@ -8,14 +8,18 @@ public:
 
 	void Update();
 
-	char GetGraphicAt(const unsigned int _pos) const;
+	char GetGraphicAt(const unsigned int _posX, const unsigned int _posY) const;
 
 private:
-	enum class DropState { Fall, Splash, End, Nothing };
+	enum class DropState { Fall, Splash, End, SkySpawned };
 	
 	class RainDrop {
 	public:
 		RainDrop(unsigned int _posX, unsigned int _posY);
+		unsigned int GetPosX()  const;
+		unsigned int GetPosY()  const;
+		DropState    GetState() const;
+		void         SetState(DropState _state);
 
 	private:
 		DropState    state;
@@ -28,12 +32,16 @@ private:
 	char   graphicSplash;
 	char   graphicEnd;
 	char   graphicGround;
-	// Basic line
-	/*char * groundLine;
-	char * upperLine;*/
+	char   graphicSky;
+	// Lines for drawing
+	char * printLine;
+	char * skyLine;
 	
 	std::vector<RainDrop> rainDrops;
-
+	RainDrop * GetRainDropAt(unsigned int _posX, unsigned int _posY);
+	void       UpdateRainLine();
+	void       UpdateSkyLine();
+	
 	unsigned int dropSpawnTime;
 	unsigned int dropTimer;
 };

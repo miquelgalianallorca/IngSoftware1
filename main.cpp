@@ -10,12 +10,6 @@
 #include "MeteoManager.h"
 #include "World.h"
 
-using std::vector;
-
-// Tools
-void ShowConsoleCursor(bool showFlag);
-void MoveConsoleCursor(int x, int y);
-
 int main()
 {
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -54,20 +48,4 @@ int main()
 	}
 
     return 0;
-}
-
-void ShowConsoleCursor(bool showFlag)
-{
-	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_CURSOR_INFO cursorInfo;
-
-	GetConsoleCursorInfo(out, &cursorInfo);
-	cursorInfo.bVisible = showFlag; // set the cursor visibility
-	SetConsoleCursorInfo(out, &cursorInfo);
-}
-
-void MoveConsoleCursor(int x, int y) {
-	COORD pos = { x, y };
-	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(output, pos);
 }
