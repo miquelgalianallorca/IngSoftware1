@@ -10,8 +10,7 @@
 #include "MeteoManager.h"
 #include "World.h"
 
-int main()
-{
+int main() {
 	srand(static_cast<unsigned int>(time(NULL)));
 	ShowConsoleCursor(false);
 
@@ -32,18 +31,15 @@ int main()
 		if (_kbhit()) {
 			char input = _getch();
 			switch (input) {
-				case Key::Esc: seguir = false; break;
+				case Key::Esc: seguir = false;                     break;
 				case Key::Z:   world.MovePlayer(Direction::Left);  break;
 				case Key::C:   world.MovePlayer(Direction::Right); break;
 				case Key::H:   world.AddBullet(Direction::Left);   break;
 				case Key::J:   world.AddBullet(Direction::Right);  break;
-				///default: printf("%i\n", input);
 			}
 		}
-
 		world.Update();
 		world.Draw();
-
 		Sleep(60);
 	}
 

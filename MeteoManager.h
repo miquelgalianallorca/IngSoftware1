@@ -5,14 +5,11 @@ public:
 	MeteoManager();
 	~MeteoManager();
 	void Init(const unsigned int _dropSpawnTime);
-
 	void Update();
-
 	char GetGraphicAt(const unsigned int _posX, const unsigned int _posY) const;
 
 private:
 	enum class DropState { Fall, Splash, End, SkySpawned };
-	
 	class RainDrop {
 	public:
 		RainDrop(unsigned int _posX, unsigned int _posY);
@@ -20,14 +17,13 @@ private:
 		unsigned int GetPosY()  const;
 		DropState    GetState() const;
 		void         SetState(DropState _state);
-
 	private:
 		DropState    state;
 		unsigned int posX;
 		unsigned int posY;
 	};
 	
-	// Raindrop graphics
+    // Raindrop graphics
 	char   graphicFall;
 	char   graphicSplash;
 	char   graphicEnd;

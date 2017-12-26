@@ -23,7 +23,7 @@ World::~World() {
 }
 
 void World::Init() {
-	player   = new Player();
+	player       = new Player();
 	meteoManager = new MeteoManager();
 	meteoManager->Init(5);
 }
@@ -108,7 +108,6 @@ void World::Update() {
 		if (eraseMushroom) itM = mushrooms.erase(itM);
 		else               itM++;
 	}
-
 }
 
 void World::MovePlayer(Direction _dir) {
@@ -134,7 +133,6 @@ void World::Draw() {
 	for (int i = 0; i < lineSize; i++) {
 		// Weather effects
 		char draw = meteoManager->GetGraphicAt(i, 0);
-		//meteoManager->GetRainLine(printLine);
 		// Draw character
 		if (i == player->GetPos()) draw = player->GetGraphic();
 		// Draw bullets
@@ -151,6 +149,5 @@ void World::Draw() {
 		}
 		printf("%c", draw);
 	}
-	///printf(" deadTime: %i, spawnTime: %i", deadTime, spawnTime);
 	printf(" LIVES: %i    POINTS: %03i", player->GetLives(), player->GetPoints());
 }

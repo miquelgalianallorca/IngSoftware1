@@ -28,7 +28,6 @@ void MeteoManager::Init(const unsigned int _dropSpawnTime) {
 }
 
 void MeteoManager::Update() {
-	
 	// Change drop graphics
 	std::vector<RainDrop> addQueue;
 	for (auto it = rainDrops.begin(); it != rainDrops.end();) {
@@ -95,7 +94,6 @@ void MeteoManager::Update() {
 		rainDrops.push_back(rd);
 	}
 	else dropTimer++;
-
 }
 
 char MeteoManager::GetGraphicAt(const unsigned int _posX, const unsigned int _posY) const {
